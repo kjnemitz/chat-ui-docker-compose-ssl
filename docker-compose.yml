@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  # The actual ui
+  chat-ui:
+    image: chat-ui
+    ports:
+      - "3001:3000"
+    environment:
+       - MONGODB_URL=mongodb://mongo-chatui:27017
+       - USE_LOCAL_WEBSEARCH=true
+    container_name: chatui
+    restart: always # Ensuring service always restarts on failure
+  # The database where the history and context are going to be stored
+  mongo-chatui:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    container_name: mongo-chatui
+    restart: always # Ensuring service always restarts on failure
+  # The reverse proxy
+  nginx:
+    container_name: nginx
+    image: nginx
+    restart: unless-stopped
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./certificates:/etc/nginix/certs
